@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Usuario</title>
+</head>
+<body>
+    <h1>Formulario de Usuario</h1>
+
+    <form id="formularioUsuario" action="guardar_registro.php" method="post" onsubmit="return validarFormulario()">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required><br>
+
+        <label for="apellido">Apellido:</label>
+        <input type="text" id="apellido" name="apellido" required><br>
+
+        <label for="tipoDocumento">Tipo de Documento:</label>
+        <select id="tipoDocumento" name="tipoDocumento" required>
+            <option value="DNI">DNI</option>
+            <option value="Pasaporte">Pasaporte</option>
+            <option value="Carnet de Identidad">Carnet de Identidad</option>
+            <!-- Agrega más opciones según sea necesario -->
+        </select><br>
+
+        <label for="numeroDocumento">Número de Documento:</label>
+        <input type="text" id="numeroDocumento" name="numeroDocumento" required><br>
+
+        <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+        <input type="date" id="fechaNacimiento" name="fechaNacimiento" required><br>
+
+        <input type="submit" value="Enviar">
+    </form>
+
+    <h2>Usuarios Mayores de Edad</h2>
+    <table id="tablaMayoresEdad">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Tipo de Documento</th>
+                <th>Número de Documento</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los usuarios mayores de edad se agregarán aquí mediante JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        function validarFormulario() {
+            var nombre = document.getElementById("nombre").value;
+            var apellido = document.getElementById("apellido").value;
+            var tipoDocumento = document.getElementById("tipoDocumento").value;
+            var numeroDocumento = document.getElementById("numeroDocumento").value;
+            var fechaNacimiento = document.getElementById("fechaNacimiento").value;
+
+            if (nombre === "" || apellido === "" || tipoDocumento === "" || numeroDocumento === "" || fechaNacimiento === "") {
+                alert("Por favor, complete todos los campos obligatorios.");
+                return false;
+            }
+
+            return true;
+        }
+
+        // Función para cargar y mostrar los registros guardados
+        function cargarRegistros() {
+            var tabla = document.getElementById("tablaMayoresEdad");
+            var tbody = tabla.getElementsByTagName("tbody")[0];
+
+            // Limpiar el contenido actual de la tabla
+            tbody.innerHTML = "";
+
+            // Realizar una solicitud para obtener los registros JSON
+            fetch("registros.json")
+                .then(response => response.json())
+                .then(data => {
+                    // Iterar a través de los registros y agregarlos a la tabla
+                    data.forEach(function (usuario, index) {
+                        var row = tbody.insertRow();
+                        var cellNombre = row.insertCell(0);
+                        var cellApellido = row.insertCell(1);
+                        var cellTipoDocumento = row.insertCell(2);
+                        var cellNumeroDocumento = row.insertCell(3);
+                        var cellFechaNacimiento = row.insertCell(4);
+                        var cellAcciones = row.insertCell(5);
+
+                        cellNombre.innerHTML = usuario.nombre;
+                        cellApellido.innerHTML = usuario.apellido;
+                        cellTipoDocumento.innerHTML = usuario.tipoDocumento;
+                        cellNumeroDocumento.innerHTML = usuario.numeroDocumento;
+                        cellFechaNacimiento.innerHTML = usuario.fechaNacimiento;
+                        cellAcciones.innerHTML = '<button onclick="eliminarRegistro(' + index + ')">Eliminar</button>';
+                    });
+                });
+        }
+
+        // Llamar a la función para cargar los registros al cargar la página
+        cargarRegistros();
+
+        // Función para eliminar un registro
+        function eliminarRegistro(index) {
+            var tabla = document.getElementById("tablaMayoresEdad");
+            var tbody = tabla.getElementsByTagName("tbody")[0];
+
+            // Eliminar la fila de la tabla
+            tbody.deleteRow(index);
+
+            // Realizar una solicitud para obtener los registros JSON
+            fetch("registros.json")
+                .then(response => response.json())
+                .then(data => {
+                    // Eliminar el registro del arreglo de datos
+                    data.splice(index, 1);
+
+                    // Convertir el arreglo actualizado a formato JSON
+                    var registrosJSON = JSON.stringify(data);
+
+                    // Enviar una solicitud para actualizar el archivo JSON
+                    fetch("actualizar_registros.php", {
+                        method: "POST",
+                        body: registrosJSON
+                    });
+                });
+        }
+    </script>
+</body>
+</html>
