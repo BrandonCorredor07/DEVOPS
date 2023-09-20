@@ -1,0 +1,16 @@
+trigger:
+- main  # Define la rama que desencadenará el pipeline
+
+pool:
+  vmImage: 'ubuntu-latest'  # Especifica la imagen del agente de compilación
+
+steps:
+- script: |
+    # Instala las dependencias si es necesario
+    # Por ejemplo, si estás utilizando Node.js:
+    # npm install
+    # Luego, compila tu código si es necesario
+    # Ejecuta pruebas automatizadas si tienes alguna
+  displayName: 'Instalar dependencias y ejecutar pruebas'
+
+# Puedes agregar más pasos según tus necesidades, como construir y empaquetar tu aplicación.
